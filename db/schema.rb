@@ -10,9 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_02_12_223600) do
+ActiveRecord::Schema[7.0].define(version: 2024_02_13_012258) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "answer_choices", force: :cascade do |t|
+    t.bigint "question_id", null: false
+    t.string "text"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["question_id"], name: "index_answer_choices_on_question_id"
+  end
 
   create_table "polls", force: :cascade do |t|
     t.bigint "author_id", null: false
@@ -22,12 +30,33 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_12_223600) do
     t.index ["author_id"], name: "index_polls_on_author_id"
   end
 
+  create_table "questions", force: :cascade do |t|
+    t.bigint "poll_id", null: false
+    t.string "text"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["poll_id"], name: "index_questions_on_poll_id"
+  end
+
+  create_table "responses", force: :cascade do |t|
+    t.bigint "respondent_id", null: false
+    t.bigint "answer_choice_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["answer_choice_id"], name: "index_responses_on_answer_choice_id"
+    t.index ["respondent_id"], name: "index_responses_on_respondent_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "username", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["username"], name: "index_users_on_username"
+    t.index ["username"], name: "index_users_on_username", unique: true
   end
 
+  add_foreign_key "answer_choices", "questions"
   add_foreign_key "polls", "users", column: "author_id"
+  add_foreign_key "questions", "polls"
+  add_foreign_key "responses", "answer_choices"
+  add_foreign_key "responses", "users", column: "respondent_id"
 end
